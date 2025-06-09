@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import css from "./App.module.css";
+import SearchBox from "../SearchBox/SearchBox";
+import Pagination from "../Pagination/Pagination";
+import PostList from "../PostList/PostList";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPages] = useState(1);
+  const [debounceSearchQuery] = useDebounce(searchTerm, 300);
+
+  const { data } = useQuery({
+    queryKey: [currentPage, debounceSearchQuery],
+    queryFn: () => fetchPosts(currentPage, debounceSearchQuery),
+    placeholderData: keepPreviousData,
+  });
+
+  const handleSearchChange = (newTerm: string) => {
+    setSearchTerm(newTerm);
+    setCurrentPages(1);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className={css.app}>
+      <header className={css.toolbar}>
+        <SearchBox />
+        {data && data.totalPages > 1 && (
+          <Pagination
+            totalPages={data.totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPages}
+          />
+        )}
 
-export default App
+        <button className={css.button}>Create post</button>
+      </header>
+      <Modal>
+        {/* Передати через children компонент CreatePostForm або EditPostForm */}
+      </Modal>
+      <PostList />
+    </div>
+  );
+}
