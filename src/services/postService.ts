@@ -5,15 +5,20 @@ axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
 // отримання
 export interface FetchPostsResponse {
-  post: Post[];
+  posts: Post[];
   totalPages: number;
 }
 
 export const fetchPosts = async (
   searchText: string
 ): Promise<FetchPostsResponse> => {
-  const res = await axios.get(`/api/posts?q=${searchText}`);
-  return res.data;
+  const res = await axios.get(`/posts?q=${searchText}`);
+  console.log(`Feched data:`, res.data);
+
+  return {
+    posts: res.data,
+    totalPages: 1,
+  };
 };
 
 // створення

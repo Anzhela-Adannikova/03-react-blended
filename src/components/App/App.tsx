@@ -20,7 +20,7 @@ export default function App() {
   const [debounceSearchQuery] = useDebounce(searchTerm, 300);
 
   const { data } = useQuery<FetchPostsResponse>({
-    queryKey: [currentPage, debounceSearchQuery],
+    queryKey: ["post", currentPage, debounceSearchQuery],
     queryFn: () => fetchPosts(debounceSearchQuery),
     placeholderData: keepPreviousData,
   });
@@ -69,9 +69,9 @@ export default function App() {
           />
         </Modal>
       )}
-      {data?.post && data.post.length > 0 && (
+      {data?.posts && data.posts.length > 0 && (
         <PostList
-          posts={data.post}
+          posts={data.posts}
           toggleModal={toggleModal}
           toggleEditPost={toggleEditPost}
         />

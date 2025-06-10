@@ -19,7 +19,7 @@ export default function PostList({
   const mutation = useMutation({
     mutationFn: (id: number) => deletePost(id),
     onSuccess: () => {
-      queryClients.invalidateQueries({ queryKey: ["postes"] });
+      queryClients.invalidateQueries({ queryKey: ["posts", ""] });
       alert("The post has been deleted");
     },
   });
@@ -27,7 +27,7 @@ export default function PostList({
   return (
     <ul className={css.list}>
       {posts.map((post) => (
-        <li className={css.listItem}>
+        <li key={post.id} className={css.listItem}>
           <h2 className={css.title}>{post.title}</h2>
           <p className={css.content}>{post.body}</p>
           <div className={css.footer}>
