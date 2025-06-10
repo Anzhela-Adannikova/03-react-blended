@@ -4,18 +4,21 @@ import type { Post, NewPost } from "../types/post";
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
 // отримання
-export const fetchPosts = async (searchText: string) => {
-  const res = await axios.get<Post[]>("task", {
-    params: {
-      q: searchText,
-    },
-  });
+export interface FetchPostsResponse {
+  post: Post[];
+  totalPages: number;
+}
+
+export const fetchPosts = async (
+  searchText: string
+): Promise<FetchPostsResponse> => {
+  const res = await axios.get(`/api/posts?q=${searchText}`);
   return res.data;
 };
 
 // створення
 export const createPost = async (newPost: NewPost) => {
-  const res = await axios.post<Post>("/post", newPost);
+  const res = await axios.post<Post>("/posts", newPost);
   return res.data;
 };
 

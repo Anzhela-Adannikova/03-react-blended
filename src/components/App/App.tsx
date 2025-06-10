@@ -2,31 +2,53 @@ import css from "./App.module.css";
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
 import PostList from "../PostList/PostList";
+import EditPostForm from "../EditPostForm/EditPostForm";
+import Modal from "../Modal/Modal";
+
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
+import { fetchPosts } from "../../services/postService";
+import type { FetchPostsResponse } from "../../services/postService";
+import type { Post } from "../../types/post";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editedPost, setEditedPost] = useState<Post | null>(null);
   const [currentPage, setCurrentPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const [debounceSearchQuery] = useDebounce(searchTerm, 300);
 
-  const { data } = useQuery({
+  const { data } = useQuery<FetchPostsResponse>({
     queryKey: [currentPage, debounceSearchQuery],
-    queryFn: () => fetchPosts(currentPage, debounceSearchQuery),
+    queryFn: () => fetchPosts(debounceSearchQuery),
     placeholderData: keepPreviousData,
   });
+
+  const toggleModal = () => {
+    setIsModalOpen((prev) => !prev);
+  };
+
+  const toggleEditPost = (post: Post) => {
+    setEditedPost(post);
+    setIsModalOpen(true);
+  };
 
   const handleSearchChange = (newTerm: string) => {
     setSearchTerm(newTerm);
     setCurrentPages(1);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditedPost(null);
+  };
+
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox />
-        {data && data.totalPages > 1 && (
+        <SearchBox value={searchTerm} onSearch={handleSearchChange} />
+        {data && data.totalPages && data.totalPages > 1 && (
           <Pagination
             totalPages={data.totalPages}
             currentPage={currentPage}
@@ -34,12 +56,26 @@ export default function App() {
           />
         )}
 
-        <button className={css.button}>Create post</button>
+        <button className={css.button} onClick={toggleModal}>
+          Create post
+        </button>
       </header>
-      <Modal>
-        {/* Передати через children компонент CreatePostForm або EditPostForm */}
-      </Modal>
-      <PostList />
+      {isModalOpen && editedPost && (
+        <Modal onClose={handleCloseModal}>
+          <EditPostForm
+            post={editedPost}
+            onClose={toggleModal}
+            onSuccess={handleCloseModal}
+          />
+        </Modal>
+      )}
+      {data?.posts && data.post.length > 0 && (
+        <PostList
+          posts={data.posts}
+          toggleModal={toggleModal}
+          toggleEditPost={toggleEditPost}
+        />
+      )}
     </div>
   );
 }
