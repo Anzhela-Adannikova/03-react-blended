@@ -69,9 +69,9 @@ export default function App() {
           />
         </Modal>
       )}
-      {data?.posts && data.post.length > 0 && (
+      {data?.post && data.post.length > 0 && (
         <PostList
-          posts={data.posts}
+          posts={data.post}
           toggleModal={toggleModal}
           toggleEditPost={toggleEditPost}
         />
