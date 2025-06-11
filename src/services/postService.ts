@@ -10,14 +10,20 @@ export interface FetchPostsResponse {
 }
 
 export const fetchPosts = async (
-  searchText: string
+  page: number = 1,
+  searchText: string = "",
+  perPage: number = 8
 ): Promise<FetchPostsResponse> => {
   const res = await axios.get(`/posts?q=${searchText}`);
-  console.log(`Feched data:`, res.data);
+  const allPost = res.data;
+
+  const start = (page - 1) * perPage;
+  const paginatedPosts = allPost.slice(start, start + perPage);
+  const totalPages = Math.ceil(allPost.length / perPage);
 
   return {
-    posts: res.data,
-    totalPages: 1,
+    posts: paginatedPosts,
+    totalPages,
   };
 };
 

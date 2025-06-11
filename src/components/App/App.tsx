@@ -17,11 +17,12 @@ export default function App() {
   const [editedPost, setEditedPost] = useState<Post | null>(null);
   const [currentPage, setCurrentPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debounceSearchQuery] = useDebounce(searchTerm, 300);
+  const [debounceSearchTerm] = useDebounce(searchTerm, 300);
+  const perPage = 8;
 
   const { data } = useQuery<FetchPostsResponse>({
-    queryKey: ["post", currentPage, debounceSearchQuery],
-    queryFn: () => fetchPosts(debounceSearchQuery),
+    queryKey: ["post", currentPage, debounceSearchTerm, perPage],
+    queryFn: () => fetchPosts(currentPage, debounceSearchTerm, perPage),
     placeholderData: keepPreviousData,
   });
 
